@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The say-do gap in mental wellness apps</title>
+<meta name="description" content="Mining 200,972 app store reviews of 73 mental health apps to find the gap between what Calm advertises and what its users complain about.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#fcfcfb; --surface:#f5f4f0; --ink:#111110; --ink-2:#52514e; --ink-3:#898781;
+  --rule:rgba(17,17,16,.12); --rule-2:rgba(17,17,16,.06);
+  --calm:#2a78d6; --head:#eb6834; --third:#1baf7a; --neutral:#a9a7a0;
+  --grid:#e4e3dc; --axis:#c3c2b7; --on-fill:#fff;
+  --sans:"Inter",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --wrap:min(860px,100% - 2rem);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#17171a; --surface:#1f1f22; --ink:#f2f1ee; --ink-2:#bdbcb5; --ink-3:#8e8d87;
+    --rule:rgba(242,241,238,.16); --rule-2:rgba(242,241,238,.07);
+    --calm:#5b9ceb; --head:#f07f4f; --third:#2cc48c; --neutral:#7e7d77;
+    --grid:#2c2c30; --axis:#3d3d42; --on-fill:#11111a;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#17171a; --surface:#1f1f22; --ink:#f2f1ee; --ink-2:#bdbcb5; --ink-3:#8e8d87;
+  --rule:rgba(242,241,238,.16); --rule-2:rgba(242,241,238,.07);
+  --calm:#5b9ceb; --head:#f07f4f; --third:#2cc48c; --neutral:#7e7d77;
+  --grid:#2c2c30; --axis:#3d3d42; --on-fill:#11111a;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{width:var(--wrap);margin-inline:auto}
+header{padding:5rem 0 2.5rem;border-bottom:1px solid var(--rule)}
+.kicker{font-size:12.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--ink-3);margin:0 0 1.4rem}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(2rem,5.2vw,3.1rem);line-height:1.1;
+  letter-spacing:-.015em;margin:0 0 1.1rem;max-width:22ch}
+.standfirst{font-family:var(--serif);font-size:clamp(1.1rem,2.4vw,1.32rem);line-height:1.5;
+  color:var(--ink-2);margin:0;max-width:56ch}
+.byline{margin:2.2rem 0 0;font-size:14px;color:var(--ink-3);display:flex;flex-wrap:wrap;gap:.5rem 1.3rem}
+.byline a{color:var(--ink-2)}
+main{padding:0 0 5rem}
+section{padding:3.2rem 0;border-bottom:1px solid var(--rule-2)}
+section:last-of-type{border-bottom:0}
+h2{font-family:var(--serif);font-weight:500;font-size:clamp(1.5rem,3.4vw,2rem);line-height:1.2;
+  letter-spacing:-.01em;margin:0 0 1.2rem;max-width:30ch}
+h3{font-size:1rem;font-weight:500;margin:2.2rem 0 .6rem;letter-spacing:-.005em}
+p{margin:0 0 1.15rem;max-width:68ch}
+a{color:var(--calm);text-decoration:none;border-bottom:1px solid color-mix(in oklab,var(--calm) 35%,transparent)}
+a:hover{border-bottom-color:var(--calm)}
+strong{font-weight:500}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.88em;background:var(--surface);padding:.1em .35em;border-radius:4px}
+.lede{font-size:1.06rem;color:var(--ink-2)}
+blockquote{margin:2rem 0;padding:0 0 0 1.4rem;border-left:2px solid var(--calm)}
+blockquote p{font-family:var(--serif);font-size:clamp(1.15rem,2.6vw,1.45rem);line-height:1.45;margin:0 0 .6rem}
+blockquote cite{font-style:normal;font-size:13.5px;color:var(--ink-3)}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--rule-2);border:1px solid var(--rule-2);border-radius:10px;overflow:hidden;margin:2rem 0}
+.stat{background:var(--surface);padding:1.15rem 1.2rem}
+.stat .n{font-family:var(--serif);font-size:2rem;line-height:1;font-variant-numeric:tabular-nums lining-nums;display:block}
+.stat .l{font-size:12.5px;color:var(--ink-3);margin-top:.5rem;display:block;line-height:1.4}
+figure{margin:2.4rem 0}
+figcaption{font-size:13.5px;color:var(--ink-3);line-height:1.5;margin-top:.85rem;max-width:66ch}
+.chartbox{width:100%;overflow-x:auto}
+.chartbox svg{display:block;min-width:620px}
+.legend{display:flex;flex-wrap:wrap;gap:.45rem 1.15rem;margin:0 0 .85rem;font-size:13px;color:var(--ink-2)}
+.legend span{display:inline-flex;align-items:center;gap:.4rem}
+.sw{width:11px;height:11px;border-radius:2px;flex:none}
+.tablewrap{overflow-x:auto;margin:2rem 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px;min-width:540px}
+th,td{text-align:left;padding:.7rem .9rem;border-bottom:1px solid var(--rule-2);vertical-align:top}
+thead th{font-weight:500;font-size:12.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--ink-3);border-bottom:1px solid var(--rule)}
+td.num{font-variant-numeric:tabular-nums lining-nums;white-space:nowrap}
+ol,ul{max-width:68ch;padding-left:1.3rem;margin:0 0 1.15rem}
+li{margin-bottom:.7rem}
+.callout{background:var(--surface);border-radius:10px;padding:1.3rem 1.4rem;margin:2rem 0}
+.callout p:last-child{margin-bottom:0}
+.callout h3{margin-top:0}
+footer{border-top:1px solid var(--rule);padding:2.5rem 0 4rem;font-size:14px;color:var(--ink-3)}
+footer a{color:var(--ink-2)}
+.srcs{list-style:none;padding:0;margin:.8rem 0 0}
+.srcs li{margin-bottom:.45rem}
+.toggle{position:fixed;top:1rem;right:1rem;background:var(--surface);color:var(--ink-2);
+  border:1px solid var(--rule);border-radius:999px;font:inherit;font-size:12.5px;
+  padding:.35rem .85rem;cursor:pointer;z-index:9}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+@media (max-width:640px){
+  header{padding:3rem 0 2rem} section{padding:2.4rem 0} body{font-size:16.5px}
+  .stat .n{font-size:1.7rem}
+}
+</style>
+</head>
+<body>
+<button class="toggle" id="tg" type="button">Dark</button>
+
+<header>
+  <div class="wrap">
+    <p class="kicker">App review mining &middot; Positioning analysis</p>
+    <h1>Calm is the angriest app in its category, and almost none of it is about meditation.</h1>
+    <p class="standfirst">Mining 200,972 Google Play reviews of 73 mental health apps to find the gap between what these brands advertise and what their users actually complain about, then turning that gap into a positioning recommendation. Marketing claims are archive-verified to the same window as the reviews.</p>
+    <p class="byline">
+      <span>Isha Das</span>
+      <span>September 2026</span>
+      <span><a href="https://github.com/Sensify-Lab/MHARD">MHARD dataset</a></span>
+      <span><a href="notebook/app_review_mining_calm_positioning.ipynb">Reproducible notebook</a></span>
+    </p>
+  </div>
+</header>
+
+<main>
+<section>
+  <div class="wrap">
+    <p class="lede">Every meditation app sells the same promise, which is that you will feel better. So the interesting question is not whether users like the meditations. It is what they are angry about instead, and whether the brand is spending its money advertising the wrong thing.</p>
+    <p>I took a peer-reviewed dataset of mental health app reviews, discovered the complaint themes without supervision, measured how often each one appears, and compared that against the marketing copy the companies were running. For one app in the set the answer was unusually clean.</p>
+    <div class="stats">
+      <div class="stat"><span class="n">200,972</span><span class="l">reviews analysed across 73 apps</span></div>
+      <div class="stat"><span class="n">1st of 51</span><span class="l">Calm's rank on money-and-access complaints, against a category median of 18.2%</span></div>
+      <div class="stat"><span class="n">53.5%</span><span class="l">of Calm's detractors complain only about money and access</span></div>
+      <div class="stat"><span class="n">10.1%</span><span class="l">complain only about the product</span></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>One reviewer got there before me</h2>
+    <blockquote>
+      <p>"It tells you to take a deep breath then hits you with a choice of 7day free trial or pay for full app. Not very calming. In fact the total opposite."</p>
+      <cite>One-star review of Calm, Google Play</cite>
+    </blockquote>
+    <p>That review is the whole finding in one sentence. The product delivers on its promise and the purchase experience contradicts it. Everything below is an attempt to work out how much that costs, and what to do about it.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The data and the method</h2>
+    <p>The dataset is <a href="https://github.com/Sensify-Lab/MHARD">MHARD</a>, released alongside an <a href="https://doi.org/10.1609/icwsm.v19i1.35916">ICWSM 2025 paper</a>. It holds 200,972 Google Play reviews of 73 mental health apps with over 100,000 downloads each, posted between 29 March 2011 and 11 July 2023, under an MIT licence. I used a public research dataset rather than scraping, so the analysis is reproducible by anyone and raises no terms-of-service questions.</p>
+    <p>The competitive set is Calm, Headspace and Intellect, chosen because they have the volume to support per-app analysis.</p>
+    <div class="tablewrap">
+      <table>
+        <caption class="sr">Review volume and rating distribution for the three apps analysed</caption>
+        <thead><tr><th>App</th><th class="num">Reviews</th><th class="num">Mean rating</th><th class="num">1&ndash;2 star</th><th class="num">5 star</th><th>Window</th></tr></thead>
+        <tbody>
+          <tr><td>Calm</td><td class="num">9,751</td><td class="num">3.28</td><td class="num">38.9%</td><td class="num">44.1%</td><td>Sep 2018 &ndash; Jun 2023</td></tr>
+          <tr><td>Headspace</td><td class="num">15,323</td><td class="num">3.19</td><td class="num">40.2%</td><td class="num">39.6%</td><td>Sep 2018 &ndash; Jul 2023</td></tr>
+          <tr><td>Intellect</td><td class="num">16,045</td><td class="num">4.70</td><td class="num">3.2%</td><td class="num">81.2%</td><td>Apr 2020 &ndash; Jun 2023</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Calm and Headspace are sharply bimodal, roughly 30% one-star against 40% or more five-star. That shape is the signature of a product people either love or feel tricked by, which is worth knowing before any clustering happens.</p>
+    <h3>Themes came out of the corpus, not out of my head</h3>
+    <p>I ran non-negative matrix factorisation over TF-IDF vectors of the review text first, with no labels and no assumptions, to see what the corpus is actually about. The topics that came back were dominated by subscriptions, cancellations and charges, by content being locked behind payment, and by sign-in and account failures. Meditation quality barely surfaced.</p>
+    <p>I then turned those discovered topics into a dictionary of sixteen labelled regular expressions and measured how often each appears. That choice is deliberate. A dictionary can be read, argued with and corrected by whoever is reviewing the work, while a black-box cluster assignment cannot. I hand-checked samples from each theme and precision sat around 90%, which is the only reason I am willing to quote these numbers to one decimal place.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What Calm was actually saying at the time</h2>
+    <p>A say-do comparison is worthless if the two halves come from different years. The reviews run to July 2023, so the marketing had to be pulled from the same window rather than from today's site. These are archived snapshots, with dates.</p>
+    <h3>The Google Play listing, 1 June 2023</h3>
+    <p>Calm's own store description, verbatim, in the middle of the review window:</p>
+    <blockquote>
+      <p>"Calm is free to download and use. There are never any ads and some of the programs and features are free forever. Some content is only available through an optional paid subscription."</p>
+      <cite>Google Play listing for Calm, archived 1 June 2023</cite>
+    </blockquote>
+    <p>That is the claim the complaint data should be read against. Not a 2026 rewrite of it, the thing that was on the page while people were writing the reviews below.</p>
+    <h3>The homepage, unchanged across three years</h3>
+    <div class="tablewrap">
+      <table>
+        <caption class="sr">Archived marketing copy for Calm and Headspace, 2021 to 2023</caption>
+        <thead><tr><th>Snapshot</th><th>Page title</th><th>Headline and description</th></tr></thead>
+        <tbody>
+          <tr><td class="num">Calm, Jun 2021<br>Jun 2022<br>May 2023</td><td>"Calm &ndash; The #1 App for Meditation and Sleep"</td><td>"Find Your Calm" &middot; "Relax with Calm, a simple mindfulness meditation app that brings clarity and peace of mind into your life"</td></tr>
+          <tr><td class="num">Headspace, Jun 2022<br>Jun 2023</td><td>"Meditation and Sleep Made Simple &ndash; Headspace"</td><td>"Live a healthier, happier, more well-rested life in just a few minutes a day with the Headspace app."</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p>Calm's headline did not move between June 2021 and May 2023. Two details are worth holding on to. The 2023 claim is "#1 App for Meditation and Sleep", where the 2026 version reads "the #1 app for sleep, meditation and relaxation". And the 2023 homepage's own embedded product configuration carries <code>"monthly":{"price":1299}</code>, so Calm was $12.99 a month during the window and is $14.99 now. The complaint data that follows predates that increase.</p>
+    <div class="callout">
+      <h3>Headspace's official answer to "there is no free content"</h3>
+      <p>Developer replies are public on Google Play. On the same archived 2023 listing, Headspace's standard response to users complaining that nothing is free reads: "We still offer free content outside of the app on social media channels like YouTube, Snapchat, and Instagram, plus our podcast Radio Headspace and our series on Netflix."</p>
+      <p>Hold that thought. It matters again later, when we look at where these users actually go.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Calm's detractors are commercial. Headspace's are technical.</h2>
+    <p>Splitting the negative reviews by theme separates the two brands cleanly. Calm's complaints cluster on billing, locked content and price. Headspace's spread across login failures and technical faults as well.</p>
+    <figure>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--calm)"></span>Calm (n=3,788)</span>
+        <span><span class="sw" style="background:var(--head)"></span>Headspace (n=6,162)</span>
+      </div>
+      <div class="chartbox"><svg viewBox="0 0 860 436" width="100%" height="436" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Grouped bar chart of complaint themes in one and two star reviews. Calm leads on billing at 34.2 percent, paywall 26.0 and price 25.7. Headspace leads on login at 15.6 and technical faults at 14.6." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="196.0" y1="10" x2="196.0" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="196.0" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="283.1" y1="10" x2="283.1" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="283.1" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">5%</text>
+<line x1="370.3" y1="10" x2="370.3" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="370.3" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="457.4" y1="10" x2="457.4" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="457.4" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">15%</text>
+<line x1="544.6" y1="10" x2="544.6" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="544.6" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="631.7" y1="10" x2="631.7" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="631.7" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">25%</text>
+<line x1="718.9" y1="10" x2="718.9" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="718.9" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="806.0" y1="10" x2="806.0" y2="406" stroke="var(--grid)" stroke-width="1"/>
+<text x="806.0" y="426.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">35%</text>
+<line x1="196" y1="10" x2="196" y2="406" stroke="var(--axis)" stroke-width="1"/>
+<text x="184.0" y="36.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Billing, cancelling, refunds</text>
+<path d="M196.0,17.5 h592.1 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 34.2%</title></path>
+<text x="799.1" y="28.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">34.2</text>
+<path d="M196.0,33.5 h269.6 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 15.7%</title></path>
+<text x="476.6" y="44.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">15.7</text>
+<text x="184.0" y="80.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Paywall, locked content</text>
+<path d="M196.0,61.5 h449.1 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 26.0%</title></path>
+<text x="656.1" y="72.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">26.0</text>
+<path d="M196.0,77.5 h375.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 21.8%</title></path>
+<text x="582.9" y="88.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">21.8</text>
+<text x="184.0" y="124.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Price, value for money</text>
+<path d="M196.0,105.5 h443.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 25.7%</title></path>
+<text x="650.9" y="116.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">25.7</text>
+<path d="M196.0,121.5 h213.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 12.5%</title></path>
+<text x="420.9" y="132.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">12.5</text>
+<text x="184.0" y="168.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Ads and upsell pressure</text>
+<path d="M196.0,149.5 h140.7 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 8.3%</title></path>
+<text x="347.7" y="160.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">8.3</text>
+<path d="M196.0,165.5 h93.6 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 5.6%</title></path>
+<text x="300.6" y="176.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">5.6</text>
+<text x="184.0" y="212.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">&quot;It doesn’t work&quot;</text>
+<path d="M196.0,193.5 h116.3 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 6.9%</title></path>
+<text x="323.3" y="204.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">6.9</text>
+<path d="M196.0,209.5 h123.2 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 7.3%</title></path>
+<text x="330.2" y="220.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">7.3</text>
+<text x="184.0" y="256.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Technical faults</text>
+<path d="M196.0,237.5 h105.8 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 6.3%</title></path>
+<text x="312.8" y="248.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">6.3</text>
+<path d="M196.0,253.5 h250.5 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 14.6%</title></path>
+<text x="457.5" y="264.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">14.6</text>
+<text x="184.0" y="300.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Login and account</text>
+<path d="M196.0,281.5 h77.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 4.7%</title></path>
+<text x="284.9" y="292.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">4.7</text>
+<path d="M196.0,297.5 h267.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 15.6%</title></path>
+<text x="474.9" y="308.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">15.6</text>
+<text x="184.0" y="344.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Customer support</text>
+<path d="M196.0,325.5 h37.8 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 2.4%</title></path>
+<text x="244.8" y="336.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">2.4</text>
+<path d="M196.0,341.5 h46.5 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 2.9%</title></path>
+<text x="253.5" y="352.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">2.9</text>
+<text x="184.0" y="388.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Repetitive content</text>
+<path d="M196.0,369.5 h30.9 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--calm)"><title>Calm: 2.0%</title></path>
+<text x="237.9" y="380.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">2.0</text>
+<path d="M196.0,385.5 h29.1 a4.0,4.0 0 0 1 4.0,4.0 v5.0 a4.0,4.0 0 0 1 -4.0,4.0 H196.0 Z" fill="var(--head)"><title>Headspace: 1.9%</title></path>
+<text x="236.1" y="396.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">1.9</text>
+</svg></div>
+      <figcaption>Share of each app's 1&ndash;2 star reviews mentioning each theme. Themes are not mutually exclusive, so a single review can appear in several.</figcaption>
+    </figure>
+    <p>Grouping those themes into commercial grievances and product grievances makes the contrast sharper. More than half of everyone who gave Calm one or two stars said nothing about the product at all.</p>
+    <figure>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--calm)"></span>Money and access only</span>
+        <span><span class="sw" style="background:var(--third)"></span>Both</span>
+        <span><span class="sw" style="background:var(--head)"></span>Product only</span>
+        <span><span class="sw" style="background:var(--neutral)"></span>Neither theme matched</span>
+      </div>
+      <div class="chartbox"><svg viewBox="0 0 860 128" width="100%" height="128" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Stacked bar chart of what negative reviews are about. Calm is 53.5 percent money and access only against 10.1 percent product only. Headspace is 33.2 against 26.2." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="104.0" y1="8" x2="104.0" y2="100" stroke="var(--grid)" stroke-width="1"/>
+<text x="104.0" y="119.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="284.5" y1="8" x2="284.5" y2="100" stroke="var(--grid)" stroke-width="1"/>
+<text x="284.5" y="119.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">25%</text>
+<line x1="465.0" y1="8" x2="465.0" y2="100" stroke="var(--grid)" stroke-width="1"/>
+<text x="465.0" y="119.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">50%</text>
+<line x1="645.5" y1="8" x2="645.5" y2="100" stroke="var(--grid)" stroke-width="1"/>
+<text x="645.5" y="119.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">75%</text>
+<line x1="826.0" y1="8" x2="826.0" y2="100" stroke="var(--grid)" stroke-width="1"/>
+<text x="826.0" y="119.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">100%</text>
+<text x="92.0" y="35.0" text-anchor="end" fill="var(--ink-2)" font-size="13.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Calm</text>
+<rect x="104.0" y="20.0" width="384.3" height="22" rx="2" fill="var(--calm)"><title>Money and access only: 53.5%</title></rect>
+<text x="296.1" y="35.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">53.5%</text>
+<rect x="490.3" y="20.0" width="80.3" height="22" rx="2" fill="var(--third)"><title>Both: 11.4%</title></rect>
+<text x="530.4" y="35.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">11.4%</text>
+<rect x="572.6" y="20.0" width="70.9" height="22" rx="2" fill="var(--head)"><title>Product only: 10.1%</title></rect>
+<text x="608.0" y="35.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">10.1%</text>
+<rect x="645.5" y="20.0" width="177.8" height="22" rx="2" fill="var(--neutral)"><title>Neither matched: 24.9%</title></rect>
+<text x="734.4" y="35.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">24.9%</text>
+<text x="92.0" y="81.0" text-anchor="end" fill="var(--ink-2)" font-size="13.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Headspace</text>
+<rect x="104.0" y="66.0" width="237.7" height="22" rx="2" fill="var(--calm)"><title>Money and access only: 33.2%</title></rect>
+<text x="222.9" y="81.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">33.2%</text>
+<rect x="343.7" y="66.0" width="59.4" height="22" rx="2" fill="var(--third)"><title>Both: 8.5%</title></rect>
+<text x="373.4" y="81.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">8.5%</text>
+<rect x="405.1" y="66.0" width="187.2" height="22" rx="2" fill="var(--head)"><title>Product only: 26.2%</title></rect>
+<text x="498.7" y="81.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">26.2%</text>
+<rect x="594.2" y="66.0" width="229.8" height="22" rx="2" fill="var(--neutral)"><title>Neither matched: 32.1%</title></rect>
+<text x="709.1" y="81.5" text-anchor="middle" fill="var(--on-fill)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">32.1%</text>
+</svg></div>
+      <figcaption>Composition of 1&ndash;2 star reviews. Commercial covers billing, paywall and price. Product covers technical faults, login, repetitive content, efficacy doubt and narrator complaints.</figcaption>
+    </figure>
+    <p>Headspace has a product problem sitting alongside a paywall problem, so it has two jobs. Calm has essentially one. That is a good position to be in, because one job is cheaper than two, and this particular job is a marketing job rather than an engineering one.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Calm is the category outlier, not a typical offender</h2>
+    <p>Two apps is an anecdote. Ranking all 51 apps in the dataset with at least 500 reviews gives the finding a denominator, and the result is more severe than the head-to-head suggested.</p>
+    <figure><div class="legend"><span><span class="sw" style="background:var(--calm)"></span>Calm and Headspace</span><span><span class="sw" style="background:var(--neutral)"></span>Other apps in the category</span></div><div class="chartbox"><svg viewBox="0 0 860 360" width="100%" height="360" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Bar chart ranking apps by the share of their negative reviews that are about money and access. Calm is first at 65.0 percent, Headspace fifth at 41.7, against a category median of 18.2." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="132.0" y1="8" x2="132.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="132.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="228.0" y1="8" x2="228.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="228.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="324.0" y1="8" x2="324.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="324.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="420.0" y1="8" x2="420.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="420.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="516.0" y1="8" x2="516.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="516.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">40%</text>
+<line x1="612.0" y1="8" x2="612.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="612.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">50%</text>
+<line x1="708.0" y1="8" x2="708.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="708.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">60%</text>
+<line x1="804.0" y1="8" x2="804.0" y2="332" stroke="var(--grid)" stroke-width="1"/>
+<text x="804.0" y="351.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">70%</text>
+<line x1="306.7" y1="6" x2="306.7" y2="334" stroke="var(--ink-3)" stroke-width="1" stroke-dasharray="4 3"/>
+<text x="311.7" y="16.0" text-anchor="start" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">category median 18.2%</text>
+<line x1="132" y1="8" x2="132" y2="332" stroke="var(--axis)" stroke-width="1"/>
+<text x="121.0" y="26.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="500" font-family="Inter,system-ui,sans-serif">Calm</text>
+<path d="M132.0,14.0 h620.0 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--calm)"><title>Calm: 65.0%</title></path>
+<text x="763.0" y="26.0" text-anchor="start" fill="var(--ink-2)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">65.0%</text>
+<text x="121.0" y="53.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Fabulous</text>
+<path d="M132.0,41.0 h610.4 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Fabulous: 64.0%</title></path>
+<text x="753.4" y="53.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">64.0%</text>
+<text x="121.0" y="80.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Cerebral</text>
+<path d="M132.0,68.0 h534.6 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Cerebral: 56.1%</title></path>
+<text x="677.6" y="80.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">56.1%</text>
+<text x="121.0" y="107.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Breeze</text>
+<path d="M132.0,95.0 h470.2 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Breeze: 49.4%</title></path>
+<text x="613.2" y="107.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">49.4%</text>
+<text x="121.0" y="134.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="500" font-family="Inter,system-ui,sans-serif">Headspace</text>
+<path d="M132.0,122.0 h396.3 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--calm)"><title>Headspace: 41.7%</title></path>
+<text x="539.3" y="134.0" text-anchor="start" fill="var(--ink-2)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">41.7%</text>
+<text x="121.0" y="161.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Reflectly</text>
+<path d="M132.0,149.0 h393.4 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Reflectly: 41.4%</title></path>
+<text x="536.4" y="161.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">41.4%</text>
+<text x="121.0" y="188.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">ReGain</text>
+<path d="M132.0,176.0 h392.5 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>ReGain: 41.3%</title></path>
+<text x="535.5" y="188.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">41.3%</text>
+<text x="121.0" y="215.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Clarity</text>
+<path d="M132.0,203.0 h390.6 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Clarity: 41.1%</title></path>
+<text x="533.6" y="215.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">41.1%</text>
+<text x="121.0" y="242.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Talkspace</text>
+<path d="M132.0,230.0 h370.4 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Talkspace: 39.0%</title></path>
+<text x="513.4" y="242.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">39.0%</text>
+<text x="121.0" y="269.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">I Am</text>
+<path d="M132.0,257.0 h366.6 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>I Am: 38.6%</title></path>
+<text x="509.6" y="269.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">38.6%</text>
+<text x="121.0" y="296.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Youper</text>
+<path d="M132.0,284.0 h353.1 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Youper: 37.2%</title></path>
+<text x="496.1" y="296.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">37.2%</text>
+<text x="121.0" y="323.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Finch</text>
+<path d="M132.0,311.0 h333.0 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Finch: 35.1%</title></path>
+<text x="476.0" y="323.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">35.1%</text>
+</svg></div><figcaption>Share of each app's 1&ndash;2 star reviews mentioning billing, paywall or price. 51 apps with at least 500 reviews; top 12 shown.</figcaption></figure>
+    <p>Calm ranks first of 51 at 65.0%, against a category median of 18.2%. Headspace is fifth at 41.7%. Intellect, which most of its users never pay for, is thirty-sixth at 9.5%.</p>
+    <p>This reframes the problem. Calm does not have a slightly elevated paywall complaint relative to a peer. It has the highest concentration of money-and-access anger in a field of 51 apps that are all selling subscriptions to roughly the same thing.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What Calm's advocates actually talk about</h2>
+    <p>The same dictionary run over four and five star reviews finds the asset. Sleep is named in 41.2% of Calm's positive reviews, more than double Headspace's 19.2%. Headspace wins on structured courses. Neither of those is a small difference, and only one of them is being advertised as the headline.</p>
+    <figure>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--calm)"></span>Calm (n=5,283)</span>
+        <span><span class="sw" style="background:var(--head)"></span>Headspace (n=7,549)</span>
+      </div>
+      <div class="chartbox"><svg viewBox="0 0 860 280" width="100%" height="280" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Grouped bar chart of themes in four and five star reviews. Sleep is named by 41.2 percent of Calm advocates against 19.2 percent for Headspace." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="46" y1="216.0" x2="848" y2="216.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="220.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="46" y1="170.7" x2="848" y2="170.7" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="174.7" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="46" y1="125.3" x2="848" y2="125.3" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="129.3" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="46" y1="80.0" x2="848" y2="80.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="84.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="46" y1="34.7" x2="848" y2="34.7" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="38.7" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">40%</text>
+<line x1="46" y1="216.0" x2="848" y2="216.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="126.2" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Sleep</text>
+<path d="M93.7,216.0 V33.2 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Sleep: 41.2%</title></path>
+<text x="108.7" y="23.2" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">41.2</text>
+<path d="M128.7,216.0 V133.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Sleep: 19.2%</title></path>
+<text x="143.7" y="123.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">19.2</text>
+<text x="286.6" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Anxiety</text>
+<text x="286.6" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">and stress</text>
+<path d="M254.1,216.0 V60.4 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Anxiety and stress: 35.2%</title></path>
+<text x="269.1" y="50.4" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">35.2</text>
+<path d="M289.1,216.0 V105.3 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Anxiety and stress: 25.3%</title></path>
+<text x="304.1" y="95.3" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">25.3</text>
+<text x="447.0" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Voice</text>
+<text x="447.0" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">and narrator</text>
+<path d="M414.5,216.0 V179.2 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Voice and narrator: 9.0%</title></path>
+<text x="429.5" y="169.2" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">9.0</text>
+<path d="M449.5,216.0 V184.2 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Voice and narrator: 7.9%</title></path>
+<text x="464.5" y="174.2" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">7.9</text>
+<text x="607.4" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Courses</text>
+<text x="607.4" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">and structure</text>
+<path d="M574.9,216.0 V182.4 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Courses and structure: 8.3%</title></path>
+<text x="589.9" y="172.4" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">8.3</text>
+<path d="M609.9,216.0 V166.5 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Courses and structure: 11.8%</title></path>
+<text x="624.9" y="156.5" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">11.8</text>
+<text x="767.8" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Habit</text>
+<text x="767.8" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">and streaks</text>
+<path d="M735.3,216.0 V191.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Habit and streaks: 6.4%</title></path>
+<text x="750.3" y="181.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">6.4</text>
+<path d="M770.3,216.0 V196.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Habit and streaks: 5.3%</title></path>
+<text x="785.3" y="186.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">5.3</text>
+</svg></div>
+      <figcaption>Share of each app's 4&ndash;5 star reviews mentioning each theme.</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Why cutting the price would not fix this</h2>
+    <p>The complaint did not just grow between 2019 and 2022, it changed character. Calm's share of one and two star reviews went from 25.0% to 58.1%. Over the same period, price complaints fell from 32.5% of detractors to 16.1%, while complaints about content being locked rose from 19.3% to 32.5%.</p>
+    <figure>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--calm)"></span>Calm, share rated 1&ndash;2 star</span>
+        <span><span class="sw" style="background:var(--head)"></span>Headspace, share rated 1&ndash;2 star</span>
+      </div>
+      <div class="chartbox"><svg viewBox="0 0 860 280" width="100%" height="280" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Line chart of the share of reviews rated one or two stars by year. Calm rises from 25.0 percent in 2019 to 58.1 in 2022." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="46" y1="244.0" x2="802" y2="244.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="248.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="46" y1="167.3" x2="802" y2="167.3" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="171.3" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="46" y1="90.7" x2="802" y2="90.7" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="94.7" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">40%</text>
+<line x1="46" y1="14.0" x2="802" y2="14.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="18.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">60%</text>
+<line x1="46" y1="244.0" x2="802" y2="244.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="46.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2019</text>
+<text x="235.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2020</text>
+<text x="424.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2021</text>
+<text x="613.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2022</text>
+<text x="802.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2023</text>
+<path d="M46.0,148.2 L235.0,97.9 L424.0,28.6 L613.0,21.3 L802.0,57.7" fill="none" stroke="var(--calm)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="46.0" cy="148.2" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>Calm 2019: 25.0%</title></circle>
+<circle cx="235.0" cy="97.9" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>Calm 2020: 38.1%</title></circle>
+<circle cx="424.0" cy="28.6" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>Calm 2021: 56.2%</title></circle>
+<circle cx="613.0" cy="21.3" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>Calm 2022: 58.1%</title></circle>
+<circle cx="802.0" cy="57.7" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>Calm 2023: 48.6%</title></circle>
+<text x="812.0" y="61.7" text-anchor="start" fill="var(--calm)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">48.6%</text>
+<path d="M46.0,75.7 L235.0,93.0 L424.0,116.4 L613.0,27.0 L802.0,67.7" fill="none" stroke="var(--head)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<circle cx="46.0" cy="75.7" r="4.5" fill="var(--head)" stroke="var(--bg)" stroke-width="2"><title>Headspace 2019: 43.9%</title></circle>
+<circle cx="235.0" cy="93.0" r="4.5" fill="var(--head)" stroke="var(--bg)" stroke-width="2"><title>Headspace 2020: 39.4%</title></circle>
+<circle cx="424.0" cy="116.4" r="4.5" fill="var(--head)" stroke="var(--bg)" stroke-width="2"><title>Headspace 2021: 33.3%</title></circle>
+<circle cx="613.0" cy="27.0" r="4.5" fill="var(--head)" stroke="var(--bg)" stroke-width="2"><title>Headspace 2022: 56.6%</title></circle>
+<circle cx="802.0" cy="67.7" r="4.5" fill="var(--head)" stroke="var(--bg)" stroke-width="2"><title>Headspace 2023: 46.0%</title></circle>
+<text x="812.0" y="71.7" text-anchor="start" fill="var(--head)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">46.0%</text>
+</svg></div>
+      <figcaption>Share of each year's reviews rated 1&ndash;2 stars.</figcaption>
+    </figure>
+    <figure>
+      <div class="legend">
+        <span><span class="sw" style="background:var(--calm)"></span>"Everything is locked"</span>
+        <span><span class="sw" style="background:var(--third)"></span>"Too expensive"</span>
+      </div>
+      <div class="chartbox"><svg viewBox="0 0 860 280" width="100%" height="280" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Line chart of Calm negative review themes over time. Access complaints rise from 19.3 to 32.5 percent while price complaints fall from 32.5 to 16.1." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="46" y1="244.0" x2="802" y2="244.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="248.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="46" y1="178.3" x2="802" y2="178.3" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="182.3" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="46" y1="112.6" x2="802" y2="112.6" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="116.6" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="46" y1="46.9" x2="802" y2="46.9" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="50.9" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="46" y1="244.0" x2="802" y2="244.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="46.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2019</text>
+<text x="235.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2020</text>
+<text x="424.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2021</text>
+<text x="613.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2022</text>
+<text x="802.0" y="266.0" text-anchor="middle" fill="var(--ink-2)" font-size="12" font-weight="400" font-family="Inter,system-ui,sans-serif">2023</text>
+<path d="M46.0,117.2 L235.0,83.7 L424.0,41.6 L613.0,30.4 L802.0,83.0" fill="none" stroke="var(--calm)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+<circle cx="46.0" cy="117.2" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>&quot;Everything is locked&quot; 2019: 19.3%</title></circle>
+<circle cx="235.0" cy="83.7" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>&quot;Everything is locked&quot; 2020: 24.4%</title></circle>
+<circle cx="424.0" cy="41.6" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>&quot;Everything is locked&quot; 2021: 30.8%</title></circle>
+<circle cx="613.0" cy="30.4" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>&quot;Everything is locked&quot; 2022: 32.5%</title></circle>
+<circle cx="802.0" cy="83.0" r="4.5" fill="var(--calm)" stroke="var(--bg)" stroke-width="2"><title>&quot;Everything is locked&quot; 2023: 24.5%</title></circle>
+<text x="812.0" y="87.0" text-anchor="start" fill="var(--calm)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">24.5%</text>
+<path d="M46.0,30.4 L235.0,64.6 L424.0,77.1 L613.0,105.3 L802.0,138.2" fill="none" stroke="var(--third)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<circle cx="46.0" cy="30.4" r="4.5" fill="var(--third)" stroke="var(--bg)" stroke-width="2"><title>&quot;Too expensive&quot; 2019: 32.5%</title></circle>
+<circle cx="235.0" cy="64.6" r="4.5" fill="var(--third)" stroke="var(--bg)" stroke-width="2"><title>&quot;Too expensive&quot; 2020: 27.3%</title></circle>
+<circle cx="424.0" cy="77.1" r="4.5" fill="var(--third)" stroke="var(--bg)" stroke-width="2"><title>&quot;Too expensive&quot; 2021: 25.4%</title></circle>
+<circle cx="613.0" cy="105.3" r="4.5" fill="var(--third)" stroke="var(--bg)" stroke-width="2"><title>&quot;Too expensive&quot; 2022: 21.1%</title></circle>
+<circle cx="802.0" cy="138.2" r="4.5" fill="var(--third)" stroke="var(--bg)" stroke-width="2"><title>&quot;Too expensive&quot; 2023: 16.1%</title></circle>
+<text x="812.0" y="142.2" text-anchor="start" fill="var(--third)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">16.1%</text>
+</svg></div>
+      <figcaption>Calm's 1&ndash;2 star reviews only. The two lines cross in 2020. People stopped saying it costs too much and started saying they could not reach anything.</figcaption>
+    </figure>
+    <p>Those are different complaints with different fixes. A price objection responds to discounting. An access objection responds to how the free tier is packaged and presented, which costs almost nothing to change.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>What each company treats as a real complaint</h2>
+    <p>26% of reviews in this dataset carry a public developer reply, which makes response behaviour measurable. What a company answers is a statement about what it considers a problem.</p>
+    <figure><div class="legend"><span><span class="sw" style="background:var(--calm)"></span>Calm</span><span><span class="sw" style="background:var(--head)"></span>Headspace</span></div><div class="chartbox"><svg viewBox="0 0 860 280" width="100%" height="280" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Grouped bar chart of developer response rates by complaint type. Calm answers 39.9 percent of billing complaints but only 26.2 percent of paywall complaints. Headspace answers 68.0 percent of login and 66.9 percent of technical complaints." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="46" y1="216.0" x2="848" y2="216.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="220.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="46" y1="188.8" x2="848" y2="188.8" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="192.8" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="46" y1="161.6" x2="848" y2="161.6" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="165.6" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="46" y1="134.4" x2="848" y2="134.4" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="138.4" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="46" y1="107.2" x2="848" y2="107.2" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="111.2" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">40%</text>
+<line x1="46" y1="80.0" x2="848" y2="80.0" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="84.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">50%</text>
+<line x1="46" y1="52.8" x2="848" y2="52.8" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="56.8" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">60%</text>
+<line x1="46" y1="25.6" x2="848" y2="25.6" stroke="var(--grid)" stroke-width="1"/>
+<text x="37.0" y="29.6" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">70%</text>
+<line x1="46" y1="216.0" x2="848" y2="216.0" stroke="var(--axis)" stroke-width="1"/>
+<text x="126.2" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Billing</text>
+<text x="126.2" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">and charges</text>
+<path d="M93.7,216.0 V111.5 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Billing and charges: 39.9%</title></path>
+<text x="108.7" y="101.5" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">39.9</text>
+<path d="M128.7,216.0 V63.1 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Billing and charges: 57.7%</title></path>
+<text x="143.7" y="53.1" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">57.7</text>
+<text x="286.6" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Price</text>
+<path d="M254.1,216.0 V117.7 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Price: 37.6%</title></path>
+<text x="269.1" y="107.7" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">37.6</text>
+<path d="M289.1,216.0 V64.4 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Price: 57.2%</title></path>
+<text x="304.1" y="54.4" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">57.2</text>
+<text x="447.0" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Login</text>
+<path d="M414.5,216.0 V109.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Login: 40.8%</title></path>
+<text x="429.5" y="99.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">40.8</text>
+<path d="M449.5,216.0 V35.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Login: 68.0%</title></path>
+<text x="464.5" y="25.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">68.0</text>
+<text x="607.4" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Technical</text>
+<path d="M574.9,216.0 V136.5 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Technical: 30.7%</title></path>
+<text x="589.9" y="126.5" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">30.7</text>
+<path d="M609.9,216.0 V38.0 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Technical: 66.9%</title></path>
+<text x="624.9" y="28.0" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">66.9</text>
+<text x="767.8" y="238.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Paywall,</text>
+<text x="767.8" y="253.0" text-anchor="middle" fill="var(--ink-2)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">locked</text>
+<path d="M735.3,216.0 V148.7 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--calm)"><title>Calm &#8211; Paywall, locked: 26.2%</title></path>
+<text x="750.3" y="138.7" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">26.2</text>
+<path d="M770.3,216.0 V68.5 a4.0,4.0 0 0 1 4.0,-4.0 h22.0 a4.0,4.0 0 0 1 4.0,4.0 V216.0 Z" fill="var(--head)"><title>Headspace &#8211; Paywall, locked: 55.7%</title></path>
+<text x="785.3" y="58.5" text-anchor="middle" fill="var(--ink-3)" font-size="11" font-weight="400" font-family="Inter,system-ui,sans-serif">55.7</text>
+</svg></div><figcaption>Share of 1&ndash;2 star reviews of each type that received a developer response. Calm answers 33.0% of its detractors overall, Headspace 58.1%.</figcaption></figure>
+    <p>Headspace answers most of its detractors and skews toward things it can fix in code, 68.0% on login problems and 66.9% on technical faults.</p>
+    <p>Calm's pattern is the one worth sitting with. It answers 39.9% of reviews about being charged, and 26.2% of reviews about content being locked. That is its lowest response rate of any complaint type, below its own 33.0% average, on the complaint it receives most after billing. Read generously, Calm routes billing disputes to support and treats a paywall objection as a pricing preference rather than a fault. Read less generously, the single loudest signal in its review corpus is the one it most often declines to answer.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The exit is not to a competitor</h2>
+    <p>If unhappy Calm users were leaving for Headspace, this would be a feature-and-price problem with a competitive answer. They are not. 7.3% of Calm's detractors name a free audio substitute unprompted, YouTube in 6.1% of cases. Headspace is barely mentioned.</p>
+    <blockquote>
+      <p>"Well if you're looking to calm down for free, don't bother with this. Just about everything is locked without paying for it."</p>
+      <cite>One-star review of Calm, Google Play</cite>
+    </blockquote>
+    <p>Which brings back Headspace's developer reply from 2023, the one pointing users to YouTube and Netflix for free content. The category's own answer to the free-tier objection is to send people to free audio, and the review data shows that is exactly where they go. The competitive frame here is not Calm against Headspace. It is Calm against free.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Does the method actually measure anything?</h2>
+    <p>A keyword dictionary invites the obvious objection that it measures the analyst's vocabulary rather than the users'. The honest test is to point it somewhere an outside authority has already established the answer.</p>
+    <p>Cerebral sits in this dataset with 1,980 reviews. In April 2024, after the review window closes, the FTC brought a ROSCA action against Cerebral over its cancellation practices, alleging among other things that an easy-cancel button was removed two weeks after launch because cancellations spiked. If the dictionary tracks something real, Cerebral should surface on cancellation without being told to.</p>
+    <figure><div class="legend"><span><span class="sw" style="background:var(--head)"></span>Cerebral, later subject of FTC action</span><span><span class="sw" style="background:var(--neutral)"></span>Other apps</span></div><div class="chartbox"><svg viewBox="0 0 860 252" width="100%" height="252" role="img" preserveAspectRatio="xMinYMin meet" aria-label="Bar chart of how often the word cancel appears in negative reviews. Cerebral, the app the FTC later sued over cancellation practices, ranks first at 32.0 percent." xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+<line x1="132.0" y1="8" x2="132.0" y2="224" stroke="var(--grid)" stroke-width="1"/>
+<text x="132.0" y="243.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">0%</text>
+<line x1="324.0" y1="8" x2="324.0" y2="224" stroke="var(--grid)" stroke-width="1"/>
+<text x="324.0" y="243.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10%</text>
+<line x1="516.0" y1="8" x2="516.0" y2="224" stroke="var(--grid)" stroke-width="1"/>
+<text x="516.0" y="243.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">20%</text>
+<line x1="708.0" y1="8" x2="708.0" y2="224" stroke="var(--grid)" stroke-width="1"/>
+<text x="708.0" y="243.0" text-anchor="middle" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">30%</text>
+<line x1="132" y1="8" x2="132" y2="224" stroke="var(--axis)" stroke-width="1"/>
+<text x="121.0" y="26.0" text-anchor="end" fill="var(--ink-2)" font-size="12.5" font-weight="500" font-family="Inter,system-ui,sans-serif">Cerebral</text>
+<path d="M132.0,14.0 h610.4 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--head)"><title>Cerebral: 32.0%</title></path>
+<text x="753.4" y="26.0" text-anchor="start" fill="var(--ink-2)" font-size="11.5" font-weight="500" font-family="Inter,system-ui,sans-serif">32.0%</text>
+<text x="121.0" y="53.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Fabulous</text>
+<path d="M132.0,41.0 h485.6 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Fabulous: 25.5%</title></path>
+<text x="628.6" y="53.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">25.5%</text>
+<text x="121.0" y="80.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Calm</text>
+<path d="M132.0,68.0 h291.7 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Calm: 15.4%</title></path>
+<text x="434.7" y="80.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">15.4%</text>
+<text x="121.0" y="107.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Breeze</text>
+<path d="M132.0,95.0 h188.0 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Breeze: 10.0%</title></path>
+<text x="331.0" y="107.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">10.0%</text>
+<text x="121.0" y="134.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Talkspace</text>
+<path d="M132.0,122.0 h186.1 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Talkspace: 9.9%</title></path>
+<text x="329.1" y="134.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">9.9%</text>
+<text x="121.0" y="161.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Finch</text>
+<path d="M132.0,149.0 h143.8 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Finch: 7.7%</title></path>
+<text x="286.8" y="161.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">7.7%</text>
+<text x="121.0" y="188.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Voice</text>
+<path d="M132.0,176.0 h124.6 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Voice: 6.7%</title></path>
+<text x="267.6" y="188.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">6.7%</text>
+<text x="121.0" y="215.0" text-anchor="end" fill="var(--ink-3)" font-size="12.5" font-weight="400" font-family="Inter,system-ui,sans-serif">Headspace</text>
+<path d="M132.0,203.0 h115.0 a4.0,4.0 0 0 1 4.0,4.0 v7.0 a4.0,4.0 0 0 1 -4.0,4.0 H132.0 Z" fill="var(--neutral)"><title>Headspace: 6.2%</title></path>
+<text x="258.0" y="215.0" text-anchor="start" fill="var(--ink-3)" font-size="11.5" font-weight="400" font-family="Inter,system-ui,sans-serif">6.2%</text>
+</svg></div><figcaption>Share of each app's 1&ndash;2 star reviews containing the word "cancel". Apps with at least 150 negative reviews.</figcaption></figure>
+    <p>Cerebral ranks first at 32.0%, more than five times Headspace's 6.2%, using nothing but the word "cancel" in user text. That is one case and it does not prove the dictionary is right everywhere. It does mean the measurement independently surfaced the app a regulator went on to sanction, which is the sort of check that should exist before anyone spends money on the recommendation.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>A warning about star ratings in this category</h2>
+    <p>Intellect averages 4.70 against Calm's 3.28, which looks like a damning quality gap until you notice that only 4.3% of Intellect's negative reviews mention billing, against Calm's 34.2%. Intellect is sold to employers as a replacement for an employee assistance programme, so most of its users never encounter a paywall. Someone else paid.</p>
+    <p>Set against every review each app has, the pattern is stark. One in four of everything written about Calm in this dataset is a one or two star review about money or access. For Intellect it is three in a thousand.</p>
+    <div class="stats">
+      <div class="stat"><span class="n">25.2%</span><span class="l">Calm reviews that are commercial-grievance 1&ndash;2 star</span></div>
+      <div class="stat"><span class="n">16.8%</span><span class="l">Headspace</span></div>
+      <div class="stat"><span class="n">0.3%</span><span class="l">Intellect</span></div>
+    </div>
+    <p>Star averages across these apps are not comparable as quality signals, because the apps have different billing relationships with their users. Any competitive benchmark that ranks them on rating alone is measuring business model, not product.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>The say-do gap</h2>
+    <p>Both halves of this table now come from the same window. The claims are archived snapshots dated inside the review period, not present-day copy read backwards.</p>
+    <div class="tablewrap">
+      <table>
+        <caption class="sr">Advertised claims compared against measured review themes, both dated to 2021 to 2023</caption>
+        <thead><tr><th>What Calm said, 2021&ndash;2023</th><th>Source</th><th>What its reviewers said</th></tr></thead>
+        <tbody>
+          <tr><td>"Calm is free to download and use&hellip; some of the programs and features are free forever"</td><td class="num">Play listing,<br>1 Jun 2023</td><td>26.0% of detractors say content is locked. Access complaints climbed from 19.3% to 32.5% of detractors between 2019 and 2022</td></tr>
+          <tr><td>"Some content is only available through an optional paid subscription"</td><td class="num">Play listing,<br>1 Jun 2023</td><td>34.2% of detractors are describing a billing or cancellation fight. 15.7% mention being charged</td></tr>
+          <tr><td>"Find Your Calm"</td><td class="num">Homepage,<br>2021, 2022, 2023</td><td>The highest concentration of money-and-access anger of any app in a 51-app field</td></tr>
+          <tr><td>"The #1 App for Meditation and Sleep"</td><td class="num">Page title,<br>2021&ndash;2023</td><td>Supported on sleep. Named in 41.2% of advocates against 19.2% for Headspace. The meditation half is where Headspace wins</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="callout">
+      <h3>The part that changes the recommendation</h3>
+      <p>Calm's free tier is reportedly substantial, around 230 meditations plus eight sleep sessions and the first day of every programme, according to its own help centre. A quarter of its detractors believe everything is locked, and the store listing they read before installing said "free forever" without ever saying what was free.</p>
+      <p>The free tier is not too small. It is unspecified, and a promise with no inventory attached reads as a trick the moment a user hits the first padlock. Calm is absorbing the brand cost of content it already gives away.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Recommendation</h2>
+    <p>Calm's product promise survives contact with its users. Sleep is real, it is defensible, and it is twice Headspace's. What does not survive is the first ninety seconds of the commercial experience, and the evidence says that is a presentation failure rather than a price failure.</p>
+    <ol>
+      <li><strong>Replace "free forever" with an inventory.</strong> The phrase is technically true and it is attached to the single largest complaint category in a 51-app field. "230 meditations free, no card needed" is checkable, and a number a user can verify does not read as bait. Vagueness is what converts a generous free tier into a perceived trick.</li>
+      <li><strong>Move the free library in front of the card prompt.</strong> The 2019 to 2022 migration from price complaints to access complaints puts the damage at first contact, before anyone has formed a view on the content. A user who never reaches the meditations cannot be persuaded by how good they are.</li>
+      <li><strong>Answer the paywall complaint.</strong> It is currently Calm's least-answered complaint type at 26.2%, below its own average and below every other category. Whatever the internal reasoning, the public record shows a company that replies about charges and goes quiet about access, on a storefront where those replies are the first thing the next prospective user reads.</li>
+      <li><strong>Narrow the claim to sleep, and compete against free rather than against Headspace.</strong> 7.3% of detractors leave for YouTube and free audio, not for a rival subscription. Sleep is the one territory where a paid product has an answer free audio cannot match, and it is already the thing 41.2% of advocates name. The current claim spends a third of its words on structured meditation, which Headspace owns more convincingly.</li>
+    </ol>
+    <p>Notably absent: cut the price. Price complaints halved as a share of detractors while the overall complaint rate doubled. Discounting addresses the objection that was already fading.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Limitations</h2>
+    <ul>
+      <li>Google Play only. No App Store data, which matters, since Headspace sits materially higher on Apple than on Google Play and the two populations may differ.</li>
+      <li>Theme prevalence is measured by dictionary, so it understates any complaint expressed in wording the rules do not cover. Every figure here is a floor, not an estimate.</li>
+      <li>Precision was checked by sampling and reading, at roughly 90%, rather than against a labelled gold standard. The Cerebral check is external corroboration, not validation in a formal sense, and it is a single case.</li>
+      <li>Clustering uses TF-IDF and NMF rather than sentence embeddings. That costs some nuance on very short reviews and buys a method a reader can audit, which for a positioning argument is the better trade.</li>
+      <li>Reviewers are a self-selecting, disproportionately annoyed sample. These figures describe people who wrote reviews, not the user base, and say nothing about the silent majority who simply stopped opening the app.</li>
+      <li>The free-tier inventory cited in the say-do table comes from a research pass over Calm's help centre and was not confirmed first-hand, unlike the archived store and homepage copy, which was.</li>
+      <li>The recommendation is a reasoned hypothesis. Nothing here demonstrates that changing the free-tier presentation would move retention or revenue, and no holdout or experiment was run.</li>
+      <li>Calm's price rose from $12.99 to $14.99 monthly after the review window closed. Any 2026 reader should assume the price objection has since moved.</li>
+    </ul>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>Analysis and write-up by Isha Das. Every figure is reproduced by the <a href="notebook/app_review_mining_calm_positioning.ipynb">notebook in this repository</a>, which runs top to bottom and fetches the dataset itself.</p>
+    <ul class="srcs">
+      <li><a href="https://github.com/Sensify-Lab/MHARD">MHARD, Mental Health App Reviews Dataset</a></li>
+      <li><a href="https://doi.org/10.1609/icwsm.v19i1.35916">Wang et al., ICWSM 2025</a></li>
+      <li><a href="https://doi.org/10.5281/zenodo.22863690">Zenodo archived release</a></li>
+      <li>Marketing copy: archived snapshots of calm.com and headspace.com and their Google Play listings, June 2021 to June 2023, via the Internet Archive. Retrieval notes and full sourcing are in <code>research/</code>.</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root=document.documentElement, tg=document.getElementById('tg');
+  function isDark(){var t=root.getAttribute('data-theme');
+    return t?t==='dark':matchMedia('(prefers-color-scheme: dark)').matches;}
+  function label(){tg.textContent=isDark()?'Light':'Dark';}
+  label();
+  tg.addEventListener('click',function(){root.setAttribute('data-theme',isDark()?'light':'dark');label();});
+  matchMedia('(prefers-color-scheme: dark)').addEventListener('change',function(){
+    if(!root.getAttribute('data-theme')) label();});
+})();
+</script>
+</body>
+</html>
